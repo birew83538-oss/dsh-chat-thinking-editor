@@ -1,0 +1,14 @@
+# dsh-chat-thinking-editor bundle patch: mounts the assistant-message edit plugin.
+#
+# Install: `dsh plugin --profile <name> add <this package>` (npm or a local
+# path). The `dsh plugin` command pnpm-installs the package into the profile
+# and reconciles it into the profile's `dsh.profile.bundles` layer list.
+#
+# The Host half (this row) provides the `assistantEdit` Remote namespace that
+# appends a surface replacement event for an edited assistant message. The
+# browser half (declared by package.json `dsh.client`) is scanned by
+# dsh-client-modules and registers the edit pencil into the
+# `conversation.chat.assistant-actions` strip plus the edit modal.
+- insert:
+    - id: chat-thinking-editor
+      name: dsh-chat-thinking-editor
