@@ -1,131 +1,88 @@
-<div align="center">
-
 # dsh-chat-thinking-editor
 
-**Tired of AI answers that never quite match what you asked for?**
-**Now you decide exactly what the AI outputs.**
+> Make the AI do it your way. If it won't, do you do it.
 
-A plugin for [DeepSeek Harness (DSH)](<https://github.com/deepseek-ai/deepseek-harness>) that lets you **edit any assistant message's reply text AND its reasoning / thinking chain** right inside the conversation.
+After living inside DeepSeek Harness for a while, I finally figured something out: a model can be brilliant and still be a stubborn piece of work. Especially with the technical stuff — reverse-engineering something, picking apart a protocol, digging into how some low-level thing actually works. It just stalls, then hands you that line we all know:
 
-Keep the AI's cleverness, fix what you don't like — make the AI fully match your intent.
+> "I can't help you with that, because it might violate..."
 
-`DSH web plugin` · `message editing` · `thinking chain editor` · optimized for `dsh 0.1.5-rc.2+`
+You know the rest. Fill in the dots yourself, you've seen it a hundred times.
+
+Re-ask it? Same line. Rephrase? Same line, maybe with a polite "I'd suggest going through the proper process." You burn tokens fast, and meanwhile its whole long thinking chain just keeps grinding along its own "nope, not doing it" track.
+
+So I wrote this plugin. **Stop arguing with the AI. Just edit it.**
+
+When it won't cooperate, pull up that answer — and that whole thinking chain it fought over — and rewrite it. Save, and from then on this whole conversation only recognizes *your* version: the reply it writes out, and the path it reasons along, all bent to your intent, without a single "but I can't."
+
+One line: **Keep the AI's cleverness, cut what you don't want, and make it fully listen to you.**
 
 **English** · [中文](./README.md)
 
-</div>
-
 ---
 
-## ✨ What problem does it solve?
+## What it does
 
-DSH agents are smart — but not every reply lands exactly the way you want. Before, your only options were:
+- Every AI message gets a little **pencil** in its action strip;
+- Open it and you can edit **both** the reply text and the **thinking chain**;
+- Not just the one in front of you — it lists **every** reply in the session, including the mid-tool-call ones;
+- Once saved, the AI only knows your version. Edit the same reply as many times as you like, no re-runs needed.
 
-- Re-prompt and re-run (wasting time & tokens);
-- Accept a "close enough" answer;
-- Copy it out, edit manually, and lose it from the agent's record.
+Small courtesies: images and tool calls are left alone; empty reply = blank it out; empty thinking = drop that block; editing is locked while the agent is running so you two don't wrestle over the same text.
 
-**With this plugin you edit in place.** Reply text and thinking chain — edit any message you like. On save, the model only ever sees **your edited version**, so every follow-up builds on content you actually like.
+## Install
 
-> 🎯 In one line: **Keep the AI's cleverness, fix what you dislike, make the output fully yours.**
-
----
-
-## 🚀 Highlights
-
-- **✏️ One-click edit**: every assistant message gets a pencil in its action strip;
-- **🧠 Twin editors**: each row expands into *Reply text* and *Thinking chain* fields, edited independently;
-- **🗒️ Every reply covered**: the list shows **all** finalized assistant messages in the session (including intermediate replies between tool calls);
-- **♻️ Surface replacement**: saving appends a `surface replacement` event — **the model only sees the edited version**; old copies are shadowed out, and a message can be edited repeatedly;
-- **🔧 Smart preservation**: images, tool calls and other non-text blocks are kept untouched; empty text blanks the reply, empty thinking removes the block (and a non-empty thinking is inserted at the front when absent);
-- **🔒 Run-safe**: editing is disabled while the agent is running to avoid conflicts.
-
----
-
-## 📦 Installation
-
-Prereq: [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh` CLI, `0.1.5-rc.2` or newer recommended).
-
-### Option A: local path (Recommended — tracks the repo source)
+You need DeepSeek Harness (`dsh`, `0.1.5-rc.2` or newer recommended).
 
 ```bash
-git clone https://github.com/birew83538-oss/dsh-chat-thinking-editor.git
+# clone it and mount from a local path (recommended — tracks the source)
 dsh plugin --profile web add /path/to/dsh-chat-thinking-editor
 ```
 
-### Option B: npm (once published)
+If it ever ships on npm, it's one line:
 
 ```bash
 dsh plugin --profile web add dsh-chat-thinking-editor
 ```
 
-### Option C: manual bundle mount
+Prefer to do it by hand? Merge the row from [cordis.patch.yml](./cordis.patch.yml) into your profile's `dsh.profile.bundles` and restart `dsh web`.
 
-Merge the row from [cordis.patch.yml](./cordis.patch.yml) into your profile's `dsh.profile.bundles` layer and restart `dsh web`.
+Refresh the DSH page after installing and you'll see the pencil.
 
-> After install, restart / refresh the DSH Web page to see the pencil.
+## Usage
 
----
+1. Run a conversation, find a reply you're not happy with;
+2. Hover it, click the pencil;
+3. In *Edit assistant messages*, expand that row;
+4. Edit the reply and/or the thinking chain (leave blank = remove that part);
+5. Save — it now continues from your version.
 
-## 🧭 Usage
+Note: to close the dialog you have to click the **top-left** close button. Backdrop clicks and Esc won't dismiss it — that's on purpose, so you don't accidentally close it while scrolling on your phone.
 
-1. Run a conversation in DSH Web;
-2. Hover a reply you're **not happy with** and click the pencil;
-3. In the *Edit assistant messages* list, expand the target row;
-4. Edit **Reply text** and/or **Thinking chain** (leave blank = remove that part);
-5. Hit **Save** — the agent now continues from your new version;
-6. Want to fine-tune again? Edit the same message anytime.
+## A little bug I fixed along the way
 
-> 💡 To close the dialog, use the **top-left** close button (mask clicks and Esc won't dismiss it).
+While writing this I fixed an annoying one: previously, select-all (Ctrl/Cmd+A) → delete in one editor would also wipe the sibling editor. The text selection was leaking across the two adjacent boxes, so deleting grabbed both. Now select-all only touches the field you're actually editing.
 
----
+## Compatibility
 
-## 🐛 Little fix included
+- Target: DeepSeek Harness `0.1.5-rc.2+` (dependency range `^0.1.1-rc.2`);
+- Runtime: Node 22.19+ / 24+, pnpm 11;
+- Built on the official `surface replacement` event (same machinery as compaction) and the `conversation.chat.assistant-actions` slot — no private APIs.
 
-Since v0.1.1, an annoying bug is fixed: **select-all (Ctrl/Cmd+A) → delete in one editor used to wipe the sibling editor too.**
+> Heads-up: DSH itself is a **developer preview**, so its APIs will likely keep changing. If an upgrade breaks things, just open an issue.
 
-- Root cause: text selection bled across the modal layer and the two adjacent `Reply` / `Thinking` fields, so select-all grabbed page-wide text and deleting cleared both;
-- Fix: intercept `Ctrl/Cmd+A` to select only the focused field, plus `user-select` isolation on the modal — now select-all only affects the field you're editing.
+## Layout
 
----
-
-## 🛠️ Compatibility
-
-- **Target**: DeepSeek Harness `0.1.5-rc.2+` (dependency range `^0.1.1-rc.2`, covering `0.1.1-rc.2` → `0.1.5-rc.2` and later rc/stable releases);
-- **Runtime**: Node 22.19+ / 24+, pnpm 11;
-- **Semantics**: built on the official `surface replacement` event (the same mechanism compaction uses) and the `conversation.chat.assistant-actions` slot — no private APIs.
-
-> ⚠️ DSH is officially a **developer preview**; APIs may change. If you hit a compat issue after an upgrade, please open an issue.
-
----
-
-## 🗂️ Layout
-
-```
-dsh-chat-thinking-editor/
-├── src/                 # TypeScript source
-│   ├── index.ts         # Host side: assistantEdit/replace remote service
-│   └── client/          # Browser side: pencil button + edit modal + i18n
-├── lib/                 # Compiled output (npm entry)
-├── cordis.patch.yml     # DSH bundle mount declaration
+```text
+.
+├── src/           # TypeScript source (host + frontend logic)
+├── lib/           # compiled output, the npm entry
+├── cordis.patch.yml  # DSH mount declaration
 ├── package.json
 └── README.md
 ```
 
----
-
-## 🧬 Tech notes (for developers)
-
-- **Host**: the `assistantEdit` Remote namespace exposing `replace(request)` — appends a **surface-replacement event** to the session's append-only log; the model-visible surface (`deriveMessages` folding) shows only the edited node while older copies are shadowed;
-- **Browser**: the pencil injects via the `conversation.chat.assistant-actions` slot; the list collects every finalized assistant message (reply + thinking) from the conversation snapshot and saves each row independently.
-
----
-
-## 📄 License
+## License
 
 [MIT](./LICENSE)
 
-<div align="center">
-Made with ❤️ for the DeepSeek Harness community.<br/>
-Tune your agent to be exactly what you want — right here in the `dsh-plugin` corner.
-</div>
+To whoever's hanging around the `dsh-plugin` corner: stop going back and forth with a model that won't budge — bend it to your will instead. That's what this is for.
