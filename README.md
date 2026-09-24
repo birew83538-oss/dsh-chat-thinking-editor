@@ -33,15 +33,17 @@
 
 前提：装好 DeepSeek Harness（`dsh`，推荐 `0.1.5-rc.2` 及以上版本）。
 
-```bash
-# clone 到本地后，走本地路径挂上（推荐，随时跟源码同步）
-dsh plugin --profile web add /path/to/dsh-chat-thinking-editor
-```
-
-如果以后发到 npm 了，就一行：
+已经发到 npm 了，一行就完事：
 
 ```bash
 dsh plugin --profile web add dsh-chat-thinking-editor
+```
+
+想改源码、跟着一起折腾的，clone 下来走本地路径挂也行：
+
+```bash
+git clone https://github.com/yumiao-dev/dsh-chat-thinking-editor.git
+dsh plugin --profile web add /path/to/dsh-chat-thinking-editor
 ```
 
 想手搓挂载的话，把 [cordis.patch.yml](./cordis.patch.yml) 里那行合进你 profile 的 `dsh.profile.bundles` 层，重启 `dsh web` 就完事。
