@@ -1,6 +1,6 @@
 {
   "name": "dsh-chat-thinking-editor",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "DeepSeek Harness (DSH) plugin: edit any assistant message's reply text AND reasoning/thinking chain right in the conversation. A pencil action opens a list of every finalized reply; edits are saved as a surface replacement so the model only ever sees YOUR version. Optimized for DSH 0.1.5-rc.2+. 灵感：让 AI 的输出真正符合你的心意。",
   "repository": {
     "type": "git",
